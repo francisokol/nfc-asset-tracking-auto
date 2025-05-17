@@ -1,0 +1,76 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<div class="container">
+    {% include 'admin/navbar.html' %}
+    <h4 class="text-center my-3">OUT - Mark Item as Pending</h4>
+
+    <div class="row d-flex justify-content-center">
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        {% if category == 'OUTsuccess' %}
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <strong>{{ message }}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% elif category == 'OUTdanger' %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <strong>{{ message }}</strong>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h5>Automatic NFC Scanning Active</h5>
+                <p class="text-muted">Simply scan any registered NFC tag to mark it as OUT</p>
+                <div id="scanStatus" class="alert alert-info">
+                    Waiting for NFC tag...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Function to update the status display
+function updateStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('scanStatus');
+    statusDiv.className = `alert alert-${type}`;
+    statusDiv.textContent = message;
+}
+
+// Start polling for NFC scans
+function pollForScans() {
+    fetch('/admin/get-latest-nfc')
+        .then(res => res.json())
+        .then(data => {
+            if (data.message) {
+                if (data.status === 'success') {
+                    updateStatus(data.message, 'success');
+                    // Refresh page after 2 seconds on successful scan
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else if (data.status === 'error') {
+                    updateStatus(data.message, 'danger');
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Error polling for NFC:', err);
+        });
+}
+
+// Poll every second
+setInterval(pollForScans, 1000);
+</script>
+{% endblock %}

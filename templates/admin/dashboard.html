@@ -1,0 +1,228 @@
+{% extends 'admin/layout.html' %}
+
+{% block content %}
+<div class="container">
+    {% include 'admin/navbar.html' %}
+</div>
+<div class="row d-flex justify-content-center">
+    <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            {% if category == 'loginsuccess' %}
+              <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <strong>{{ message }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-success d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Total Items</h5>
+                <h4 class="text-white">{{ totalItems }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 101</h5>
+                <h4 class="text-white">{{ cth101Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 102</h5>
+                <h4 class="text-white">{{ cth102Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 103</h5>
+                <h4 class="text-white">{{ cth103Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 104</h5>
+                <h4 class="text-white">{{ cth104Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 105</h5>
+                <h4 class="text-white">{{ cth105Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 106</h5>
+                <h4 class="text-white">{{ cth106Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 110</h5>
+                <h4 class="text-white">{{ cth110Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 111</h5>
+                <h4 class="text-white">{{ cth111Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 112</h5>
+                <h4 class="text-white">{{ cth112Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 113</h5>
+                <h4 class="text-white">{{ cth113Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 201</h5>
+                <h4 class="text-white">{{ cth201Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 202</h5>
+                <h4 class="text-white">{{ cth202Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 203</h5>
+                <h4 class="text-white">{{ cth203Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 204</h5>
+                <h4 class="text-white">{{ cth204Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 205</h5>
+                <h4 class="text-white">{{ cth205Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 206</h5>
+                <h4 class="text-white">{{ cth206Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 207</h5>
+                <h4 class="text-white">{{ cth207Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 208</h5>
+                <h4 class="text-white">{{ cth208Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 209</h5>
+                <h4 class="text-white">{{ cth209Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 210</h5>
+                <h4 class="text-white">{{ cth210Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 211</h5>
+                <h4 class="text-white">{{ cth211Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 212</h5>
+                <h4 class="text-white">{{ cth212Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 213</h5>
+                <h4 class="text-white">{{ cth213Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Items in CTH 214</h5>
+                <h4 class="text-white">{{ cth214Count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+            <div class="bg-danger d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Pending Items</h5>
+                <h4 class="text-white">{{ pendingCount }}</h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Section -->
+    <div class="my-4">
+        <h5><b>Recent Movement Logs</b></h5>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NFC ID</th>
+                        <th>Asset</th>
+                        <th>Moved From</th>
+                        <th>Action</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log, asset_name in logs %}
+                    <tr>
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.nfc_id }}</td>
+                        <td>{{ asset_name }}</td>
+                        <td>{{ log.from_location }}</td>
+                        <td>{{ log.action }}</td>
+                        <td>{{ log.timestamp }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center my-4 gap-3 flex-wrap">
+    <a href="{{ url_for('export_daily_logs') }}" class="btn btn-info"
+       style="background-color: #2ec3f5; border-color: #add8e6; color: #000;">
+        📄 Export Daily Logs to PDF
+    </a>
+
+    <form method="POST" action="{{ url_for('delete_logs') }}"
+          onsubmit="return confirm('Are you sure you want to delete all logs?');">
+        <button type="submit" class="btn btn-danger">
+            🗑️ Delete All Logs
+        </button>
+    </form>
+    </div>
+
+{% endblock content %}

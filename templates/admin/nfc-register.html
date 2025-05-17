@@ -1,0 +1,43 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<div class="container">
+    {% include 'admin/navbar.html' %}
+    <h4 class="text-center my-3">Register NFC for Item #{{ item.id }}</h4>
+    <div class="row d-flex justify-content-center">
+        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="nfc_id">Scanned NFC ID</label>
+                            <input type="text" name="nfc_id" id="nfc_id" class="form-control" placeholder="Waiting for scan..." readonly required>
+                        </div>
+                        <button class="btn btn-success w-100">Register NFC</button>
+                        <a href="/admin/get-all-item" class="btn btn-secondary w-100 mt-2">Back</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const nfcInput = document.getElementById("nfc_id");
+
+    // Create connection to Flask SSE stream
+    const eventSource = new EventSource("/admin/nfc-stream");
+    eventSource.onmessage = function(event) {
+        if (event.data) {
+            nfcInput.value = event.data;
+        }
+    };
+</script>
+{% endblock %}

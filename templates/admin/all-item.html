@@ -1,0 +1,182 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+
+{% if notifications %}
+    {% for note in notifications %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            ⚠️ {{ note }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="row d-flex justify-content-center">
+    <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'updatesuccess' %}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <strong>{{ message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% elif category == 'deletesuccess' %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>{{ message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% elif category == 'pendingsuccess' %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>{{ message }}</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</div>
+
+<div class="container">
+    {% include 'admin/navbar.html' %}
+
+    <!-- Search and Filter Form -->
+    <div class="my-2">
+        <form action="" method="POST" style="width:100%">
+            <div class="d-flex align-items-center">
+                <select name="room_filter" class="form-select my-1 w-25" style="margin-right:10px;">
+                    <option value="all" {% if room_filter == 'all' %}selected{% endif %}>All Rooms</option>
+                    {% for room in rooms %}
+                        <option value="{{ room }}" {% if room_filter == room %}selected{% endif %}>{{ room }}</option>
+                    {% endfor %}
+                    <option value="Pending" {% if room_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                </select>
+                <input type="text" name="search" placeholder="Search..." class="form-control w-50 me-2" value="{{ request.form.get('search', '') }}">
+                <button type="submit" class="btn btn-success">Search</button>
+            </div>
+        </form>
+    </div>
+        <!-- PENDING
+    <div class="my-4">
+        <h5><b>Pending Items</b></h5>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>NFC ID</th>
+                        <th>Condition</th>
+                        <th>Create Date</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in pending_items %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.nfc_id }}</td>
+                        <td>{{ item.condition }}</td>
+                        <td>{{ item.create_date }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.status }}</td>
+                        <td>{{ item.location }}</td>
+                        <td>
+                            <a href="/admin/update-item/{{ item.id }}" class="btn btn-primary btn-sm">Update</a>
+                            <a href="/admin/delete-item/{{ item.id }}" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+-->
+    {% if pending_items and pending_items|length > 0 %}
+    <h5><b>Pending Items</b></h5>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>NFC ID</th>
+                    <th>Condition</th>
+                    <th>Create Date</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in pending_items %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.nfc_id }}</td>
+                        <td>{{ item.condition }}</td>
+                        <td>{{ item.create_date }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.status }}</td>
+                        <td>{{ item.location }}</td>
+                        <td>
+                            <a href="/admin/update-item/{{ item.id }}" class="btn btn-primary btn-sm">Update</a>
+                            <a href="/admin/delete-item/{{ item.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p><i>No pending items to display.</i></p>
+{% endif %}
+    <!-- Display items grouped by room -->
+    {% for room in rooms %}
+        {% if room_data[room] %}
+            <div class="my-4">
+                <h5><b>{{ room }}</b></h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>NFC ID</th>
+                                <th>Condition</th>
+                                <th>Create Date</th>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Location</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in room_data[room] %}
+                                <tr>
+                                    <td>{{ item.id }}</td>
+                                    <td>{{ item.nfc_id }}</td>
+                                    <td>{{ item.condition }}</td>
+                                    <td>{{ item.create_date }}</td>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.status }}</td>
+                                    <td>{{ item.location }}</td>
+                                    <td>
+                                        <a href="/admin/update-item/{{ item.id }}" class="btn btn-primary btn-sm">Update</a>
+                                        <a href="/admin/delete-item/{{ item.id }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+</div>
+
+{% endblock %}

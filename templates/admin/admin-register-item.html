@@ -1,0 +1,135 @@
+{% extends "admin/layout.html" %}
+
+{% block content %}
+<div class="container">
+    {% include 'admin/navbar.html' %}
+    <h4 class="text-center my-3">
+        Register New Item
+    </h4>
+    <div class="row d-flex justify-content-center">
+        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                
+                {% if category == 'clearsuccess' %}
+                  <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                
+                {% elif category == 'clearwarning' %}
+                  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                
+                {% elif category == 'cleardanger' %}
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>{{ message }}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+      
+                {% endif %}
+      
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+            <div class="card">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="my-2">
+                            <label for="nfc_id"><b>NFC ID</b></label>
+                            <div class="input-group">
+                                <input type="text" name="nfc_id" id="nfc_id" class="form-control my-1" placeholder="Waiting for NFC tag..." readonly>
+                                <button type="button" class="btn btn-info" onclick="startScan()">Scan NFC</button>
+                            </div>
+                        </div>
+                        
+                        <script>
+                            function startScan() {
+                                const input = document.getElementById("nfc_id");
+                                input.value = "Waiting for NFC tag...";
+                        
+                                // Reset the backend stored NFC value
+                                fetch('/admin/reset-nfc', { method: "POST" });
+                        
+                                fetch('/admin/start-nfc-reader', { method: "POST" })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.status === "started") {
+                                            console.log("📡 Reader started...");
+                                            let attempts = 0;
+                                            const interval = setInterval(() => {
+                                                fetch("/admin/get-latest-nfc")
+                                                    .then(res => res.json())
+                                                    .then(data => {
+                                                        if (data.nfc_id && data.nfc_id !== "" && data.nfc_id !== input.value) {
+                                                            input.value = data.nfc_id;
+                                                            console.log("✅ NFC ID detected:", data.nfc_id);
+                                                            clearInterval(interval);
+                                                        } else {
+                                                            attempts++;
+                                                            if (attempts > 15) {
+                                                                clearInterval(interval);
+                                                                alert("⛔ Timeout: No NFC tag scanned.");
+                                                            }
+                                                        }
+                                                    })
+                                                    .catch(err => {
+                                                        console.error("Fetch error:", err);
+                                                        clearInterval(interval);
+                                                    });
+                                            }, 1000);
+                                        } else {
+                                            alert("Failed to start NFC reader.");
+                                        }
+                                    });
+                            }
+                        </script>                        
+                                             
+                            
+                        <div class="my-2">
+                            <label for="condition"><b>Condition</b></label>
+                            <input type="text" name="condition" id="condition" class="form-control my-1" required>
+                        </div>
+                        <div class="my-2">
+                            <label for="create_date"><b>Create Date & Time</b></label>
+                            <input type="datetime-local" name="create_date" id="create_date" class="form-control my-1" required>
+                        </div>                        
+                        <div class="my-2">
+                            <label for="create_date"><b>Name</b></label>
+                            <input type="text" name="name" id="name" class="form-control my-1" required>
+                        </div>
+                        <div class="my-2">
+                            <label for="create_date"><b>Status</b></label>
+                            <input type="text" name="status" id="status" class="form-control my-1" required>
+                        </div>
+                        <div class="my-2">
+                            <label for="location"><b>Location</b></label>
+                            <input type="text" name="location" id="location" class="form-control my-1" required placeholder="CTH101, CTH102, etc.">
+                        </div>
+                        
+                        <script>
+                            document.querySelector("form").addEventListener("submit", function(event) {
+                                const locationInput = document.getElementById("location").value.trim();
+                                const locationPattern = /^CTH\d+$/i;
+                        
+                                if (!locationPattern.test(locationInput)) {
+                                    alert("⛔ Invalid Location format! Only 'CTH101', 'CTH102', No Spacing");
+                                    event.preventDefault(); // Stop the form from submitting
+                                }
+                            });
+                        </script>
+                        
+                        <button class="btn btn-primary mt-2 w-100">Register Item</button>
+                        <a href="/admin/get-all-item" class="btn btn-secondary mt-2 w-100">Back</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
