@@ -4,7 +4,7 @@ import time
 import json
 
 # Configuration
-SERVER_IP = "nfc-asset-tracking-production.up.railway.app"  # Your network IP address
+SERVER_IP = "web-production-fd58.up.railway.app"  # Your network IP address
 SERVER_PORT = "8080"
 BASE_URL = f"https://{SERVER_IP}:{SERVER_PORT}"
 
