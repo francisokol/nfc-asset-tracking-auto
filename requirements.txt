@@ -23,7 +23,6 @@ nfcpy==1.0.4
 packaging==25.0
 pillow==11.2.1
 pyDes==2.0.1
-pyscard==2.2.2
 pyserial==3.5
 reportlab==4.4.0
 requests==2.32.3
