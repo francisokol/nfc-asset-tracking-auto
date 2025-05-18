@@ -1,12 +1,10 @@
 from smartcard.System import readers
 import requests
 import time
-import json
 
-# Configuration
-SERVER_IP = "web-production-fd58.up.railway.app"  # Your network IP address
-SERVER_PORT = "8080"
-BASE_URL = f"https://{SERVER_IP}:{SERVER_PORT}"
+
+
+RAILWAY_URL = "https://web-production-fd58.up.railway.app"
 
 def main(): 
     r = readers()
@@ -17,9 +15,9 @@ def main():
     reader = r[0].createConnection()
     last_scanned = None
     last_scan_time = 0
-    SCAN_COOLDOWN = 5  # Increased cooldown to 5 seconds between scans
+    SCAN_COOLDOWN = 5  #5 seconds between scans
 
-    print(f"🌐 Connected to server at {BASE_URL}")
+    print(f"🌐 Connected to server at {RAILWAY_URL}")
     print("📡 NFC Reader initialized successfully")
     print("ℹ️ Waiting for tags to scan...")
     
@@ -50,7 +48,7 @@ def main():
                         # First try auto-scan to see if tag is registered
                         print("\n📤 Checking tag status...")
                         response = requests.post(
-                            f"{BASE_URL}/admin/auto-scan",
+                            f"{RAILWAY_URL}/admin/auto-scan",
                             json={"nfc_id": nfc_id}
                         )
                         result = response.json()
@@ -63,7 +61,7 @@ def main():
                         if result.get('status') == 'error' and 'not registered' in result.get('message', '').lower():
                             print("\n📝 Tag not registered, sending to registration...")
                             reg_response = requests.post(
-                                f"{BASE_URL}/admin/nfc-update",
+                                f"{RAILWAY_URL}/admin/nfc-update",
                                 json={"nfc_id": nfc_id}
                             )
                             print(f"📥 Registration Response: {reg_response.status_code}")
