@@ -424,8 +424,10 @@ def deleteItem(id):
 @app.route('/admin/start-nfc-reader', methods=['POST'])
 def start_nfc_reader():
     try:
-        session['scanned_nfc'] = ""  # ✅ Reset before scan
-        subprocess.Popen(["python", "nfc/send_nfc_to_flask.py"])
+        session['scanned_nfc'] = ""  # Reset before scan
+        # Don't try to start the NFC reader process on Railway
+        if not os.environ.get('RAILWAY_ENVIRONMENT'):
+            subprocess.Popen(["python", "nfc/send_nfc_to_flask.py"])
         return jsonify({"status": "started"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
@@ -448,6 +450,7 @@ def update_nfc_id():
     print("Received NFC ID in Flask:", nfc_id)
 
     nfc_buffer["nfc_id"] = nfc_id  # store in global buffer
+    session['scanned_nfc'] = nfc_id
     return jsonify({"status": "success", "nfc_id": nfc_id})
     
     # Save it to session or just use it for display
@@ -680,27 +683,33 @@ def logs_stream():
     def generate():
         last_log_id = 0
         while True:
-            # Get new logs since last check
-            new_logs = (
-                db.session.query(MovementLog, Item.name)
-                .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
-                .filter(MovementLog.id > last_log_id)
-                .order_by(MovementLog.timestamp.desc())
-                .limit(20)
-                .all()
-            )
-            
-            if new_logs:
-                last_log_id = new_logs[0][0].id
-                for log, item_name in new_logs:
-                    data = {
-                        'nfc_id': log.nfc_id,
-                        'action': log.action,
-                        'timestamp': log.timestamp,
-                        'from_location': log.from_location,
-                        'item_name': item_name
-                    }
-                    yield f"data: {json.dumps(data)}\n\n"
+            with app.app_context():
+                try:
+                    # Get new logs since last check
+                    new_logs = (
+                        db.session.query(MovementLog, Item.name)
+                        .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
+                        .filter(MovementLog.id > last_log_id)
+                        .order_by(MovementLog.timestamp.desc())
+                        .limit(20)
+                        .all()
+                    )
+                    
+                    if new_logs:
+                        last_log_id = new_logs[0][0].id
+                        for log, item_name in new_logs:
+                            data = {
+                                'id': log.id,
+                                'nfc_id': log.nfc_id,
+                                'action': log.action,
+                                'timestamp': log.timestamp,
+                                'from_location': log.from_location,
+                                'item_name': item_name
+                            }
+                            yield f"data: {json.dumps(data)}\n\n"
+                except Exception as e:
+                    print(f"Error in logs_stream: {str(e)}")
+                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
             
             time.sleep(1)  # Check for new logs every second
     
