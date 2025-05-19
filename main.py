@@ -110,133 +110,14 @@ def adminIndex():
                 return redirect('/admin/')
     return render_template('admin/index.html', title="Admin Login")
 
-# Add this after the existing imports
-def get_dashboard_data():
-    with app.app_context():
-        try:
-            totalItems = Item.query.count()
-            cth101Count = Item.query.filter_by(location="CTH101").count()
-            cth102Count = Item.query.filter_by(location="CTH102").count()
-            cth103Count = Item.query.filter_by(location="CTH103").count()
-            cth104Count = Item.query.filter_by(location="CTH104").count()
-            cth105Count = Item.query.filter_by(location="CTH105").count()
-            cth106Count = Item.query.filter_by(location="CTH106").count()
-            cth110Count = Item.query.filter_by(location="CTH110").count()
-            cth111Count = Item.query.filter_by(location="CTH111").count()
-            cth112Count = Item.query.filter_by(location="CTH112").count()
-            cth113Count = Item.query.filter_by(location="CTH113").count()
-            cth201Count = Item.query.filter_by(location="CTH201").count()
-            cth202Count = Item.query.filter_by(location="CTH202").count()
-            cth203Count = Item.query.filter_by(location="CTH203").count()
-            cth204Count = Item.query.filter_by(location="CTH204").count()
-            cth205Count = Item.query.filter_by(location="CTH205").count()
-            cth206Count = Item.query.filter_by(location="CTH206").count()
-            cth207Count = Item.query.filter_by(location="CTH207").count()
-            cth208Count = Item.query.filter_by(location="CTH208").count()
-            cth209Count = Item.query.filter_by(location="CTH209").count()
-            cth210Count = Item.query.filter_by(location="CTH210").count()
-            cth211Count = Item.query.filter_by(location="CTH211").count()
-            cth212Count = Item.query.filter_by(location="CTH212").count()
-            cth213Count = Item.query.filter_by(location="CTH213").count()
-            cth214Count = Item.query.filter_by(location="CTH214").count()
-            pendingCount = Item.query.filter_by(location="Pending").count()
-
-            logs = (
-                db.session.query(MovementLog, Item.name)
-                .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
-                .order_by(MovementLog.timestamp.desc())
-                .limit(20)
-                .all()
-            )
-
-            return {
-                "totalItems": totalItems,
-                "cth101Count": cth101Count,
-                "cth102Count": cth102Count,
-                "cth103Count": cth103Count,
-                "cth104Count": cth104Count,
-                "cth105Count": cth105Count,
-                "cth106Count": cth106Count,
-                "cth110Count": cth110Count,
-                "cth111Count": cth111Count,
-                "cth112Count": cth112Count,
-                "cth113Count": cth113Count,
-                "cth201Count": cth201Count,
-                "cth202Count": cth202Count,
-                "cth203Count": cth203Count,
-                "cth204Count": cth204Count,
-                "cth205Count": cth205Count,
-                "cth206Count": cth206Count,
-                "cth207Count": cth207Count,
-                "cth208Count": cth208Count,
-                "cth209Count": cth209Count,
-                "cth210Count": cth210Count,
-                "cth211Count": cth211Count,
-                "cth212Count": cth212Count,
-                "cth213Count": cth213Count,
-                "cth214Count": cth214Count,
-                "pendingCount": pendingCount,
-                "logs": [{
-                    "id": log.id,
-                    "nfc_id": log.nfc_id,
-                    "asset_name": asset_name or "Unknown",
-                    "from_location": log.from_location or "N/A",
-                    "action": log.action,
-                    "timestamp": log.timestamp
-                } for log, asset_name in logs]
-            }
-        except Exception as e:
-            print(f"Error in get_dashboard_data: {str(e)}")
-            return {
-                "totalItems": 0,
-                "cth101Count": 0,
-                "cth102Count": 0,
-                "cth103Count": 0,
-                "cth104Count": 0,
-                "cth105Count": 0,
-                "cth106Count": 0,
-                "cth110Count": 0,
-                "cth111Count": 0,
-                "cth112Count": 0,
-                "cth113Count": 0,
-                "cth201Count": 0,
-                "cth202Count": 0,
-                "cth203Count": 0,
-                "cth204Count": 0,
-                "cth205Count": 0,
-                "cth206Count": 0,
-                "cth207Count": 0,
-                "cth208Count": 0,
-                "cth209Count": 0,
-                "cth210Count": 0,
-                "cth211Count": 0,
-                "cth212Count": 0,
-                "cth213Count": 0,
-                "cth214Count": 0,
-                "pendingCount": 0,
-                "logs": []
-            }
-
-@app.route('/admin/dashboard-stream')
-def dashboard_stream():
-    def generate():
-        while True:
-            try:
-                data = get_dashboard_data()
-                yield f"data: {json.dumps(data)}\n\n"
-                time.sleep(1)
-            except Exception as e:
-                print(f"Error in dashboard stream: {str(e)}")
-                yield f"data: {json.dumps({'error': str(e)})}\n\n"
-                time.sleep(1)
-    return Response(generate(), mimetype='text/event-stream')
-
-# Modify the existing dashboard route to use the same data function
+# Admin Dashboard
+# Route for dashboard and logs
 @app.route('/admin/dashboard', methods=["GET"])
 def admin_dashboard():
     if not session.get('admin_id'):
         return redirect('/admin/')
-        
+
+    # Get counts for total items, CTH101, CTh102, and pending items
     totalItems = Item.query.count()
     cth101Count = Item.query.filter_by(location="CTH101").count()
     cth102Count = Item.query.filter_by(location="CTH102").count()
@@ -264,13 +145,15 @@ def admin_dashboard():
     cth214Count = Item.query.filter_by(location="CTH214").count()
     pendingCount = Item.query.filter_by(location="Pending").count()
 
+    # Fetch recent movement logs
+
     logs = (
-        db.session.query(MovementLog, Item.name)
-        .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
-        .order_by(MovementLog.timestamp.desc())
-        .limit(20)
-        .all()
-    )
+    db.session.query(MovementLog, Item.name)
+    .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
+    .order_by(MovementLog.timestamp.desc())
+    .limit(20)
+    .all()
+)
 
     return render_template(
         'admin/dashboard.html',
@@ -791,6 +674,37 @@ def auto_scan():
             "status": "error",
             "message": f"An error occurred while processing the scan: {str(e)}"
         })
+
+@app.route('/admin/logs-stream')
+def logs_stream():
+    def generate():
+        last_log_id = 0
+        while True:
+            # Get new logs since last check
+            new_logs = (
+                db.session.query(MovementLog, Item.name)
+                .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
+                .filter(MovementLog.id > last_log_id)
+                .order_by(MovementLog.timestamp.desc())
+                .limit(20)
+                .all()
+            )
+            
+            if new_logs:
+                last_log_id = new_logs[0][0].id
+                for log, item_name in new_logs:
+                    data = {
+                        'nfc_id': log.nfc_id,
+                        'action': log.action,
+                        'timestamp': log.timestamp,
+                        'from_location': log.from_location,
+                        'item_name': item_name
+                    }
+                    yield f"data: {json.dumps(data)}\n\n"
+            
+            time.sleep(1)  # Check for new logs every second
+    
+    return Response(generate(), mimetype='text/event-stream')
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
