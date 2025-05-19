@@ -716,5 +716,44 @@ def logs_stream():
     
     return Response(generate(), mimetype='text/event-stream')
 
+@app.route('/admin/get-recent-logs')
+def get_recent_logs():
+    try:
+        # Get the last log ID from the request
+        last_id = request.args.get('last_id', 0, type=int)
+        
+        # Get new logs since last check
+        new_logs = (
+            db.session.query(MovementLog, Item.name)
+            .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
+            .filter(MovementLog.id > last_id)
+            .order_by(MovementLog.timestamp.desc())
+            .limit(20)
+            .all()
+        )
+        
+        # Format the logs
+        logs_data = []
+        for log, item_name in new_logs:
+            logs_data.append({
+                'id': log.id,
+                'nfc_id': log.nfc_id,
+                'action': log.action,
+                'timestamp': log.timestamp,
+                'from_location': log.from_location,
+                'item_name': item_name
+            })
+        
+        return jsonify({
+            'status': 'success',
+            'logs': logs_data,
+            'last_id': new_logs[0][0].id if new_logs else last_id
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        })
+
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
