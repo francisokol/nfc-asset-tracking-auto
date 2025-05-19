@@ -253,39 +253,79 @@ function updateRoomCounts() {
             
             if (totalCount) document.querySelector('[data-count="total"]').textContent = totalCount;
             if (pendingCount) document.querySelector('[data-count="pending"]').textContent = pendingCount;
-        });
+        })
+        .catch(error => console.error('Error updating room counts:', error));
 }
 
 // Set up SSE for real-time logs
-const logsSource = new EventSource('/admin/logs-stream');
-logsSource.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    const tbody = document.getElementById('logsTableBody');
-    
-    // Create new row
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td>${data.id}</td>
-        <td>${data.nfc_id}</td>
-        <td>${data.item_name || 'Unknown'}</td>
-        <td>${data.from_location || 'N/A'}</td>
-        <td>${data.action}</td>
-        <td>${data.timestamp}</td>
-    `;
-    
-    // Insert at the top
-    tbody.insertBefore(row, tbody.firstChild);
-    
-    // Remove last row if more than 20 rows
-    if (tbody.children.length > 20) {
-        tbody.removeChild(tbody.lastChild);
+let logsSource = null;
+
+function setupEventSource() {
+    if (logsSource) {
+        logsSource.close();
     }
+
+    logsSource = new EventSource('/admin/logs-stream');
     
-    // Update room counts
-    updateRoomCounts();
-};
+    logsSource.onopen = function() {
+        console.log('SSE connection opened');
+    };
+
+    logsSource.onerror = function(error) {
+        console.error('SSE error:', error);
+        // Try to reconnect after 5 seconds
+        setTimeout(setupEventSource, 5000);
+    };
+
+    logsSource.onmessage = function(event) {
+        try {
+            const data = JSON.parse(event.data);
+            console.log('Received new log:', data);
+            
+            const tbody = document.getElementById('logsTableBody');
+            if (!tbody) {
+                console.error('Logs table body not found');
+                return;
+            }
+            
+            // Create new row
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${data.id || ''}</td>
+                <td>${data.nfc_id || ''}</td>
+                <td>${data.item_name || 'Unknown'}</td>
+                <td>${data.from_location || 'N/A'}</td>
+                <td>${data.action || ''}</td>
+                <td>${data.timestamp || ''}</td>
+            `;
+            
+            // Insert at the top
+            tbody.insertBefore(row, tbody.firstChild);
+            
+            // Remove last row if more than 20 rows
+            if (tbody.children.length > 20) {
+                tbody.removeChild(tbody.lastChild);
+            }
+            
+            // Update room counts
+            updateRoomCounts();
+        } catch (error) {
+            console.error('Error processing log update:', error);
+        }
+    };
+}
+
+// Initialize the event source
+setupEventSource();
 
 // Update room counts every 5 seconds as a fallback
 setInterval(updateRoomCounts, 5000);
+
+// Clean up on page unload
+window.addEventListener('beforeunload', function() {
+    if (logsSource) {
+        logsSource.close();
+    }
+});
 </script>
 {% endblock %}
