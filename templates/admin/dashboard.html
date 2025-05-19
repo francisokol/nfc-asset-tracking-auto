@@ -259,6 +259,9 @@ function updateRoomCounts() {
 
 // Set up SSE for real-time logs
 let logsSource = null;
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 5;
+const reconnectDelay = 5000; // 5 seconds
 
 function setupEventSource() {
     if (logsSource) {
@@ -269,18 +272,40 @@ function setupEventSource() {
     
     logsSource.onopen = function() {
         console.log('SSE connection opened');
+        reconnectAttempts = 0; // Reset reconnect attempts on successful connection
     };
 
     logsSource.onerror = function(error) {
         console.error('SSE error:', error);
-        // Try to reconnect after 5 seconds
-        setTimeout(setupEventSource, 5000);
+        logsSource.close();
+        
+        if (reconnectAttempts < maxReconnectAttempts) {
+            reconnectAttempts++;
+            console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`);
+            setTimeout(setupEventSource, reconnectDelay);
+        } else {
+            console.error('Max reconnection attempts reached. Please refresh the page.');
+            // Show a user-friendly message
+            const tbody = document.getElementById('logsTableBody');
+            if (tbody) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="6" class="text-center text-danger">
+                        Connection lost. Please refresh the page to reconnect.
+                    </td>
+                `;
+                tbody.insertBefore(row, tbody.firstChild);
+            }
+        }
     };
 
     logsSource.onmessage = function(event) {
         try {
             const data = JSON.parse(event.data);
-            console.log('Received new log:', data);
+            if (data.error) {
+                console.error('Server error:', data.error);
+                return;
+            }
             
             const tbody = document.getElementById('logsTableBody');
             if (!tbody) {
