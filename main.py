@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, request, redirect, session, send_file
+from flask import Flask, flash, render_template, request, redirect, session, send_file, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_bcrypt import Bcrypt
@@ -11,6 +11,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
+import json
 
 
 
@@ -109,14 +110,8 @@ def adminIndex():
                 return redirect('/admin/')
     return render_template('admin/index.html', title="Admin Login")
 
-# Admin Dashboard
-# Route for dashboard and logs
-@app.route('/admin/dashboard', methods=["GET"])
-def admin_dashboard():
-    if not session.get('admin_id'):
-        return redirect('/admin/')
-
-    # Get counts for total items, CTH101, CTh102, and pending items
+# Add this after the existing imports
+def get_dashboard_data():
     totalItems = Item.query.count()
     cth101Count = Item.query.filter_by(location="CTH101").count()
     cth102Count = Item.query.filter_by(location="CTH102").count()
@@ -144,46 +139,71 @@ def admin_dashboard():
     cth214Count = Item.query.filter_by(location="CTH214").count()
     pendingCount = Item.query.filter_by(location="Pending").count()
 
-    # Fetch recent movement logs
-
     logs = (
-    db.session.query(MovementLog, Item.name)
-    .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
-    .order_by(MovementLog.timestamp.desc())
-    .limit(20)
-    .all()
-)
+        db.session.query(MovementLog, Item.name)
+        .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
+        .order_by(MovementLog.timestamp.desc())
+        .limit(20)
+        .all()
+    )
 
+    return {
+        "totalItems": totalItems,
+        "cth101Count": cth101Count,
+        "cth102Count": cth102Count,
+        "cth103Count": cth103Count,
+        "cth104Count": cth104Count,
+        "cth105Count": cth105Count,
+        "cth106Count": cth106Count,
+        "cth110Count": cth110Count,
+        "cth111Count": cth111Count,
+        "cth112Count": cth112Count,
+        "cth113Count": cth113Count,
+        "cth201Count": cth201Count,
+        "cth202Count": cth202Count,
+        "cth203Count": cth203Count,
+        "cth204Count": cth204Count,
+        "cth205Count": cth205Count,
+        "cth206Count": cth206Count,
+        "cth207Count": cth207Count,
+        "cth208Count": cth208Count,
+        "cth209Count": cth209Count,
+        "cth210Count": cth210Count,
+        "cth211Count": cth211Count,
+        "cth212Count": cth212Count,
+        "cth213Count": cth213Count,
+        "cth214Count": cth214Count,
+        "pendingCount": pendingCount,
+        "logs": [{
+            "id": log.id,
+            "nfc_id": log.nfc_id,
+            "asset_name": asset_name,
+            "from_location": log.from_location,
+            "action": log.action,
+            "timestamp": log.timestamp
+        } for log, asset_name in logs]
+    }
+
+@app.route('/admin/dashboard-stream')
+def dashboard_stream():
+    def generate():
+        while True:
+            data = get_dashboard_data()
+            yield f"data: {json.dumps(data)}\n\n"
+            time.sleep(1)
+    return Response(generate(), mimetype='text/event-stream')
+
+# Modify the existing dashboard route to use the same data function
+@app.route('/admin/dashboard', methods=["GET"])
+def admin_dashboard():
+    if not session.get('admin_id'):
+        return redirect('/admin/')
+
+    data = get_dashboard_data()
     return render_template(
         'admin/dashboard.html',
         title='Admin Dashboard',
-        totalItems=totalItems,
-        cth101Count=cth101Count,
-        cth102Count=cth102Count,
-        cth103Count=cth103Count,
-        cth104Count=cth104Count,
-        cth105Count=cth105Count,
-        cth106Count=cth106Count,
-        cth110Count=cth110Count,
-        cth111Count=cth111Count,
-        cth112Count=cth112Count,
-        cth113Count=cth113Count,
-        cth201Count=cth201Count,
-        cth202Count=cth202Count,
-        cth203Count=cth203Count,
-        cth204Count=cth204Count,
-        cth205Count=cth205Count,
-        cth206Count=cth206Count,
-        cth207Count=cth207Count,
-        cth208Count=cth208Count,
-        cth209Count=cth209Count,
-        cth210Count=cth210Count,
-        cth211Count=cth211Count,
-        cth212Count=cth212Count,
-        cth213Count=cth213Count,
-        cth214Count=cth214Count,
-        pendingCount=pendingCount,
-        logs=logs
+        **data
     )
 
 @app.route('/admin/get-all-item', methods=["POST", "GET"])
