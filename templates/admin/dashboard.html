@@ -226,6 +226,9 @@
     </div>
 
 <script>
+let lastLogId = 0;
+let isPolling = true;
+
 // Function to update room counts
 function updateRoomCounts() {
     fetch('/admin/dashboard')
@@ -257,100 +260,63 @@ function updateRoomCounts() {
         .catch(error => console.error('Error updating room counts:', error));
 }
 
-// Set up SSE for real-time logs
-let logsSource = null;
-let reconnectAttempts = 0;
-const maxReconnectAttempts = 5;
-const reconnectDelay = 5000; // 5 seconds
+// Function to check for new logs
+function checkNewLogs() {
+    if (!isPolling) return;
 
-function setupEventSource() {
-    if (logsSource) {
-        logsSource.close();
-    }
+    fetch(`/admin/get-recent-logs?last_id=${lastLogId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (data.logs.length > 0) {
+                    const tbody = document.getElementById('logsTableBody');
+                    if (!tbody) return;
 
-    logsSource = new EventSource('/admin/logs-stream');
-    
-    logsSource.onopen = function() {
-        console.log('SSE connection opened');
-        reconnectAttempts = 0; // Reset reconnect attempts on successful connection
-    };
+                    // Update lastLogId
+                    lastLogId = data.last_id;
 
-    logsSource.onerror = function(error) {
-        console.error('SSE error:', error);
-        logsSource.close();
-        
-        if (reconnectAttempts < maxReconnectAttempts) {
-            reconnectAttempts++;
-            console.log(`Attempting to reconnect (${reconnectAttempts}/${maxReconnectAttempts})...`);
-            setTimeout(setupEventSource, reconnectDelay);
-        } else {
-            console.error('Max reconnection attempts reached. Please refresh the page.');
-            // Show a user-friendly message
-            const tbody = document.getElementById('logsTableBody');
-            if (tbody) {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td colspan="6" class="text-center text-danger">
-                        Connection lost. Please refresh the page to reconnect.
-                    </td>
-                `;
-                tbody.insertBefore(row, tbody.firstChild);
-            }
-        }
-    };
+                    // Add new logs
+                    data.logs.forEach(log => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${log.id || ''}</td>
+                            <td>${log.nfc_id || ''}</td>
+                            <td>${log.item_name || 'Unknown'}</td>
+                            <td>${log.from_location || 'N/A'}</td>
+                            <td>${log.action || ''}</td>
+                            <td>${log.timestamp || ''}</td>
+                        `;
+                        tbody.insertBefore(row, tbody.firstChild);
+                    });
 
-    logsSource.onmessage = function(event) {
-        try {
-            const data = JSON.parse(event.data);
-            if (data.error) {
-                console.error('Server error:', data.error);
-                return;
+                    // Remove excess rows
+                    while (tbody.children.length > 20) {
+                        tbody.removeChild(tbody.lastChild);
+                    }
+
+                    // Update room counts
+                    updateRoomCounts();
+                }
+            } else {
+                console.error('Error fetching logs:', data.message);
             }
-            
-            const tbody = document.getElementById('logsTableBody');
-            if (!tbody) {
-                console.error('Logs table body not found');
-                return;
-            }
-            
-            // Create new row
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${data.id || ''}</td>
-                <td>${data.nfc_id || ''}</td>
-                <td>${data.item_name || 'Unknown'}</td>
-                <td>${data.from_location || 'N/A'}</td>
-                <td>${data.action || ''}</td>
-                <td>${data.timestamp || ''}</td>
-            `;
-            
-            // Insert at the top
-            tbody.insertBefore(row, tbody.firstChild);
-            
-            // Remove last row if more than 20 rows
-            if (tbody.children.length > 20) {
-                tbody.removeChild(tbody.lastChild);
-            }
-            
-            // Update room counts
-            updateRoomCounts();
-        } catch (error) {
-            console.error('Error processing log update:', error);
-        }
-    };
+        })
+        .catch(error => console.error('Error checking for new logs:', error))
+        .finally(() => {
+            // Schedule next check
+            setTimeout(checkNewLogs, 1000);
+        });
 }
 
-// Initialize the event source
-setupEventSource();
+// Start polling
+checkNewLogs();
 
 // Update room counts every 5 seconds as a fallback
 setInterval(updateRoomCounts, 5000);
 
 // Clean up on page unload
 window.addEventListener('beforeunload', function() {
-    if (logsSource) {
-        logsSource.close();
-    }
+    isPolling = false;
 });
 </script>
 {% endblock %}
