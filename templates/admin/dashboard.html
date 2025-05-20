@@ -1,6 +1,8 @@
 {% extends 'admin/layout.html' %}
 
 {% block content %}
+
+
 <div class="container">
     {% include 'admin/navbar.html' %}
 </div>
@@ -20,244 +22,529 @@
       {% endwith %}
     </div>
 </div>
+
 <div class="container">
-    <div class="row">
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+    <!-- Summary Cards Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
             <div class="bg-success d-flex p-3 justify-content-between align-items-center rounded shadow">
                 <h5 class="text-white">Total Items</h5>
-                <h4 class="text-white" data-count="total">{{ totalItems }}</h4>
+                <h4 class="text-white">{{ totalItems }}</h4>
             </div>
         </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 101</h5>
-                <h4 class="text-white" data-room="CTH101">{{ cth101Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 102</h5>
-                <h4 class="text-white" data-room="CTH102">{{ cth102Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 103</h5>
-                <h4 class="text-white" data-room="CTH103">{{ cth103Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 104</h5>
-                <h4 class="text-white" data-room="CTH104">{{ cth104Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 105</h5>
-                <h4 class="text-white" data-room="CTH105">{{ cth105Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 106</h5>
-                <h4 class="text-white" data-room="CTH106">{{ cth106Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 110</h5>
-                <h4 class="text-white" data-room="CTH110">{{ cth110Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 111</h5>
-                <h4 class="text-white" data-room="CTH111">{{ cth111Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 112</h5>
-                <h4 class="text-white" data-room="CTH112">{{ cth112Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 113</h5>
-                <h4 class="text-white" data-room="CTH113">{{ cth113Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 201</h5>
-                <h4 class="text-white" data-room="CTH201">{{ cth201Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 202</h5>
-                <h4 class="text-white" data-room="CTH202">{{ cth202Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 203</h5>
-                <h4 class="text-white" data-room="CTH203">{{ cth203Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 204</h5>
-                <h4 class="text-white" data-room="CTH204">{{ cth204Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 205</h5>
-                <h4 class="text-white" data-room="CTH205">{{ cth205Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 206</h5>
-                <h4 class="text-white" data-room="CTH206">{{ cth206Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 207</h5>
-                <h4 class="text-white" data-room="CTH207">{{ cth207Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 208</h5>
-                <h4 class="text-white" data-room="CTH208">{{ cth208Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 209</h5>
-                <h4 class="text-white" data-room="CTH209">{{ cth209Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 210</h5>
-                <h4 class="text-white" data-room="CTH210">{{ cth210Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 211</h5>
-                <h4 class="text-white" data-room="CTH211">{{ cth211Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 212</h5>
-                <h4 class="text-white" data-room="CTH212">{{ cth212Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 213</h5>
-                <h4 class="text-white" data-room="CTH213">{{ cth213Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
-            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
-                <h5 class="text-white">Items in CTH 214</h5>
-                <h4 class="text-white" data-room="CTH214">{{ cth214Count }}</h4>
-            </div>
-        </div>
-        <div class="col-xl-4 my-2 col-lg-4 col-sm-12">
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
             <div class="bg-danger d-flex p-3 justify-content-between align-items-center rounded shadow">
                 <h5 class="text-white">Pending Items</h5>
-                <h4 class="text-white" data-count="pending">{{ pendingCount }}</h4>
+                <h4 class="text-white">{{ pendingCount }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
+            <div class="bg-info d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Asset Movements Today</h5>
+                <h4 class="text-white">{{ items_moved_today }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
+            <div class="bg-warning d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">Missing Assets (>1min)</h5>
+                <h4 class="text-white">{{ long_pending_count }}</h4>
             </div>
         </div>
     </div>
 
-    <!-- Logs Section -->
-    <div class="my-4">
-        <h5><b>Recent Movement Logs</b></h5>
-        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>NFC ID</th>
-                        <th>Asset</th>
-                        <th>Moved From</th>
-                        <th>Action</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody id="logsTableBody">
-                    {% for log, asset_name in logs %}
-                    <tr>
-                        <td>{{ log.id }}</td>
-                        <td>{{ log.nfc_id }}</td>
-                        <td>{{ asset_name or 'Unknown' }}</td>
-                        <td>{{ log.from_location or 'N/A' }}</td>
-                        <td>{{ log.action }}</td>
-                        <td>{{ log.timestamp }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- Floor Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+            <div class="bg-primary d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">1st Floor Items</h5>
+                <h4 class="text-white">{{ first_floor_count }}</h4>
+            </div>
+        </div>
+        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3">
+            <div class="bg-primary d-flex p-3 justify-content-between align-items-center rounded shadow">
+                <h5 class="text-white">2nd Floor Items</h5>
+                <h4 class="text-white">{{ second_floor_count }}</h4>
+            </div>
         </div>
     </div>
 
-    <div class="d-flex justify-content-center my-4 gap-3 flex-wrap">
-    <a href="{{ url_for('export_daily_logs') }}" class="btn btn-info"
-       style="background-color: #2ec3f5; border-color: #add8e6; color: #000;">
-        📄 Export Daily Logs to PDF
-    </a>
-
-    <form method="POST" action="{{ url_for('delete_logs') }}"
-          onsubmit="return confirm('Are you sure you want to delete all logs?');">
-        <button type="submit" class="btn btn-danger">
-            🗑️ Delete All Logs
-        </button>
-    </form>
+    <!-- Detailed Room Counts (Collapsible) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <button class="btn btn-link text-dark text-decoration-none w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#roomDetails">
+                        <h5 class="mb-0">Detailed Room Counts <i class="fas fa-chevron-down float-end"></i></h5>
+                    </button>
+                </div>
+                <div id="roomDetails" class="collapse">
+                    <div class="card-body">
+                        <div class="row">
+                            {% for floor in [1, 2] %}
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                <h6 class="mb-3">Floor {{ floor }}</h6>
+                                <div class="row">
+                                    {% for room in range(1, 15) %}
+                                        {% if not (floor == 1 and 7 <= room <= 9) %}
+                                            {% set room_id = "CTH" ~ floor ~ "%02d"|format(room) %}
+                                            <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12 mb-2">
+                                                <div class="bg-light p-2 rounded shadow-sm">
+                                                    <small class="text-muted">{{ room_id }}</small>
+                                                    <h6 class="mb-0" data-room="{{ room_id }}">{{ room_counts[room_id] }}</h6>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Virtual Room Assignment and Log Controls -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <!-- Virtual Room Selection -->
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="roomSelect" class="form-label mb-0">Virtual Room Assignment:</label>
+                            <select class="form-select" id="roomSelect" onchange="updateVirtualRoom(this.value)" style="width: auto;">
+                                <option value="CTH101">CTH101</option>
+                                <option value="CTH102">CTH102</option>
+                                <option value="CTH103">CTH103</option>
+                                <option value="CTH104">CTH104</option>
+                                <option value="CTH105">CTH105</option>
+                                <option value="CTH106">CTH106</option>
+                                <option value="CTH110">CTH110</option>
+                                <option value="CTH111">CTH111</option>
+                                <option value="CTH112">CTH112</option>
+                                <option value="CTH113">CTH113</option>
+                                <option value="CTH114">CTH114</option>
+                                <option value="CTH201">CTH201</option>
+                                <option value="CTH202">CTH202</option>
+                                <option value="CTH203">CTH203</option>
+                                <option value="CTH204">CTH204</option>
+                                <option value="CTH205">CTH205</option>
+                                <option value="CTH206">CTH206</option>
+                                <option value="CTH207">CTH207</option>
+                                <option value="CTH208">CTH208</option>
+                                <option value="CTH209">CTH209</option>
+                                <option value="CTH210">CTH210</option>
+                                <option value="CTH211">CTH211</option>
+                                <option value="CTH212">CTH212</option>
+                                <option value="CTH213">CTH213</option>
+                                <option value="CTH214">CTH214</option>
+                            </select>
+                        </div>
+
+                        <!-- Export and Delete Logs Buttons -->
+                        <div class="dropdown d-inline">
+                            <button class="btn btn-info dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                   style="background-color: #2ec3f5; border-color: #add8e6; color: #000;">
+                                📄 Export Logs
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                <li><a class="dropdown-item" href="{{ url_for('export_daily_logs') }}">Export Today's Logs</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="exportFilteredLogs()">Export Filtered Logs</a></li>
+                            </ul>
+                        </div>
+
+                        <form method="POST" action="{{ url_for('delete_logs') }}"
+                              onsubmit="return confirm('Are you sure you want to delete all logs?');" class="d-inline">
+                            <button type="submit" class="btn btn-danger">
+                                🗑️ Delete All Logs
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Movement Logs -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Recent Movement Logs</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Filter Controls -->
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-2">
+                            <div class="input-group">
+                                <input type="date" class="form-control" id="dateFromFilter" placeholder="From Date">
+                                <span class="input-group-text">to</span>
+                                <input type="date" class="form-control" id="dateToFilter" placeholder="To Date">
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="input-group">
+                                <input type="time" class="form-control" id="timeFromFilter" placeholder="From">
+                                <span class="input-group-text">to</span>
+                                <input type="time" class="form-control" id="timeToFilter" placeholder="To">
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <select class="form-select" id="roomFilter">
+                                <option value="">All Rooms</option>
+                                <option value="CTH101">CTH101</option>
+                                <option value="CTH102">CTH102</option>
+                                <option value="CTH103">CTH103</option>
+                                <option value="CTH104">CTH104</option>
+                                <option value="CTH105">CTH105</option>
+                                <option value="CTH106">CTH106</option>
+                                <option value="CTH110">CTH110</option>
+                                <option value="CTH111">CTH111</option>
+                                <option value="CTH112">CTH112</option>
+                                <option value="CTH113">CTH113</option>
+                                <option value="CTH114">CTH114</option>
+                                <option value="CTH201">CTH201</option>
+                                <option value="CTH202">CTH202</option>
+                                <option value="CTH203">CTH203</option>
+                                <option value="CTH204">CTH204</option>
+                                <option value="CTH205">CTH205</option>
+                                <option value="CTH206">CTH206</option>
+                                <option value="CTH207">CTH207</option>
+                                <option value="CTH208">CTH208</option>
+                                <option value="CTH209">CTH209</option>
+                                <option value="CTH210">CTH210</option>
+                                <option value="CTH211">CTH211</option>
+                                <option value="CTH212">CTH212</option>
+                                <option value="CTH213">CTH213</option>
+                                <option value="CTH214">CTH214</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <select class="form-select" id="movementTypeFilter">
+                                <option value="">All Movements</option>
+                                <option value="scanned_in">Scanned In</option>
+                                <option value="scanned_out">Scanned Out (Pending)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <input type="text" class="form-control" id="assetFilter" placeholder="Asset Name">
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button class="btn btn-primary w-100" onclick="applyFilters()">Apply</button>
+                        </div>
+                        <div class="col-md-1 mb-2">
+                            <button class="btn btn-secondary w-100" onclick="resetFilters()">Reset</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-striped">
+                            <thead class="sticky-top bg-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Time</th>
+                                    <th>Item</th>
+                                    <th>From</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                {% for log, item_name in logs %}
+                                <tr>
+                                    <td>{{ log.id }}</td>
+                                    <td>{{ log.timestamp }}</td>
+                                    <td>{{ item_name or 'Unknown' }}</td>
+                                    <td>{{ log.from_location or 'N/A' }}</td>
+                                    <td>{{ log.action }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <script>
 let lastLogId = 0;
 let isPolling = true;
+let allLogs = new Map(); // Store all logs in a Map to prevent duplicates
+let dismissedNotifications = new Set(); // Store dismissed notification IDs
+let currentFilters = {}; // Store current filter values
 
-// Function to update room counts
-function updateRoomCounts() {
-    fetch('/admin/dashboard')
-        .then(response => response.text())
-        .then(html => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Update all room counts
-            const rooms = ['CTH101', 'CTH102', 'CTH103', 'CTH104', 'CTH105', 'CTH106', 
-                         'CTH110', 'CTH111', 'CTH112', 'CTH113', 'CTH201', 'CTH202', 
-                         'CTH203', 'CTH204', 'CTH205', 'CTH206', 'CTH207', 'CTH208', 
-                         'CTH209', 'CTH210', 'CTH211', 'CTH212', 'CTH213', 'CTH214'];
-            
-            rooms.forEach(room => {
-                const count = doc.querySelector(`[data-room="${room}"]`)?.textContent;
-                if (count) {
-                    document.querySelector(`[data-room="${room}"]`).textContent = count;
-                }
-            });
-            
-            // Update total and pending counts
-            const totalCount = doc.querySelector('[data-count="total"]')?.textContent;
-            const pendingCount = doc.querySelector('[data-count="pending"]')?.textContent;
-            
-            if (totalCount) document.querySelector('[data-count="total"]').textContent = totalCount;
-            if (pendingCount) document.querySelector('[data-count="pending"]').textContent = pendingCount;
+// Function to generate a unique ID for each notification
+function generateNotificationId(note) {
+    return note.split('(NFC ID:')[1].split(')')[0].trim();
+}
+
+// Function to format timestamp to include both date and time
+function formatTime(timestamp) {
+    const date = new Date(timestamp);
+    return date.toLocaleString('en-US', { 
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true 
+    });
+}
+
+// Function to apply filters
+function applyFilters() {
+    currentFilters = {
+        dateFrom: document.getElementById('dateFromFilter').value,
+        dateTo: document.getElementById('dateToFilter').value,
+        timeFrom: document.getElementById('timeFromFilter').value,
+        timeTo: document.getElementById('timeToFilter').value,
+        room: document.getElementById('roomFilter').value,
+        asset: document.getElementById('assetFilter').value.toLowerCase(),
+        movementType: document.getElementById('movementTypeFilter').value
+    };
+    updateLogsTable();
+}
+
+// Function to reset filters
+function resetFilters() {
+    document.getElementById('dateFromFilter').value = '';
+    document.getElementById('dateToFilter').value = '';
+    document.getElementById('timeFromFilter').value = '';
+    document.getElementById('timeToFilter').value = '';
+    document.getElementById('roomFilter').value = '';
+    document.getElementById('assetFilter').value = '';
+    document.getElementById('movementTypeFilter').value = '';
+    currentFilters = {};
+    updateLogsTable();
+}
+
+// Function to check if a log matches the current filters
+function logMatchesFilters(log) {
+    if (!currentFilters.dateFrom && !currentFilters.dateTo && 
+        !currentFilters.timeFrom && !currentFilters.timeTo && 
+        !currentFilters.room && !currentFilters.asset &&
+        !currentFilters.movementType) {
+        return true;
+    }
+
+    const timestamp = new Date(log.timestamp);
+    
+    if (currentFilters.dateFrom) {
+        const fromDate = new Date(currentFilters.dateFrom);
+        if (timestamp < fromDate) {
+            return false;
+        }
+    }
+
+    if (currentFilters.dateTo) {
+        const toDate = new Date(currentFilters.dateTo);
+        toDate.setHours(23, 59, 59, 999); // Set to end of day
+        if (timestamp > toDate) {
+            return false;
+        }
+    }
+
+    if (currentFilters.timeFrom || currentFilters.timeTo) {
+        const logTime = timestamp.getHours() * 60 + timestamp.getMinutes();
+        
+        if (currentFilters.timeFrom) {
+            const [fromHours, fromMinutes] = currentFilters.timeFrom.split(':');
+            const fromTime = parseInt(fromHours) * 60 + parseInt(fromMinutes);
+            if (logTime < fromTime) {
+                return false;
+            }
+        }
+        
+        if (currentFilters.timeTo) {
+            const [toHours, toMinutes] = currentFilters.timeTo.split(':');
+            const toTime = parseInt(toHours) * 60 + parseInt(toMinutes);
+            if (logTime > toTime) {
+                return false;
+            }
+        }
+    }
+
+    if (currentFilters.room) {
+        if (!log.action.includes(currentFilters.room) && !log.from_location.includes(currentFilters.room)) {
+            return false;
+        }
+    }
+
+    if (currentFilters.asset) {
+        if (!log.item_name.toLowerCase().includes(currentFilters.asset)) {
+            return false;
+        }
+    }
+
+    if (currentFilters.movementType) {
+        if (currentFilters.movementType === 'scanned_out' && log.action !== 'Marked as Pending') {
+            return false;
+        }
+        if (currentFilters.movementType === 'scanned_in' && !log.action.startsWith('Moved to CTH')) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Function to update the logs table
+function updateLogsTable() {
+    const tbody = document.getElementById('logsTableBody');
+    if (!tbody) return;
+
+    // Convert Map to array and sort by ID in descending order
+    const sortedLogs = Array.from(allLogs.values())
+        .sort((a, b) => b.id - a.id)
+        .filter(log => logMatchesFilters(log))
+        .slice(0, 20); // Keep only the 20 most recent logs
+
+    // Update the table
+    tbody.innerHTML = '';
+    sortedLogs.forEach(log => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${log.id || ''}</td>
+            <td>${formatTime(log.timestamp)}</td>
+            <td>${log.item_name || 'Unknown'}</td>
+            <td>${log.from_location || 'N/A'}</td>
+            <td>${log.action || ''}</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Function to update metrics display
+function updateMetrics(metrics) {
+    // Update summary cards
+    document.querySelector('.bg-success h4').textContent = metrics.totalItems;
+    document.querySelector('.bg-danger h4').textContent = metrics.pendingCount;
+    document.querySelector('.bg-info h4').textContent = metrics.items_moved_today;
+    document.querySelector('.bg-warning h4').textContent = metrics.long_pending_count;
+
+    // Update floor counts
+    document.querySelectorAll('.bg-primary h4')[0].textContent = metrics.first_floor_count;
+    document.querySelectorAll('.bg-primary h4')[1].textContent = metrics.second_floor_count;
+
+    // Update room counts in the collapsible section
+    for (const [room, count] of Object.entries(metrics.room_counts)) {
+        const roomElement = document.querySelector(`[data-room="${room}"]`);
+        if (roomElement) {
+            roomElement.textContent = count;
+        }
+    }
+
+    // Update notifications
+    const notificationsContainer = document.querySelector('.container');
+    const existingNotifications = notificationsContainer.querySelectorAll('.alert-warning');
+    
+    // Only remove notifications that are no longer relevant
+    existingNotifications.forEach(notification => {
+        const nfcId = notification.getAttribute('data-nfc-id');
+        if (!metrics.notifications.some(note => generateNotificationId(note) === nfcId)) {
+            notification.remove();
+        }
+    });
+
+    // Add new notifications
+    if (metrics.notifications && metrics.notifications.length > 0) {
+        metrics.notifications.forEach(note => {
+            const nfcId = generateNotificationId(note);
+            // Only add if not already dismissed and not already showing
+            if (!dismissedNotifications.has(nfcId) && 
+                !notificationsContainer.querySelector(`[data-nfc-id="${nfcId}"]`)) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+                alertDiv.setAttribute('data-nfc-id', nfcId);
+                alertDiv.innerHTML = `
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    ⚠️ ${note}
+                `;
+                
+                // Add event listener to the close button
+                alertDiv.querySelector('.btn-close').addEventListener('click', () => {
+                    dismissedNotifications.add(nfcId);
+                });
+                
+                notificationsContainer.insertBefore(alertDiv, notificationsContainer.firstChild);
+            }
+        });
+    }
+}
+
+// Function to check for new metrics
+function checkNewMetrics() {
+    if (!isPolling) return;
+
+    fetch('/admin/get-metrics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                updateMetrics(data.metrics);
+            } else {
+                console.error('Error fetching metrics:', data.message);
+            }
         })
-        .catch(error => console.error('Error updating room counts:', error));
+        .catch(error => console.error('Error checking for new metrics:', error))
+        .finally(() => {
+            // Schedule next check
+            setTimeout(checkNewMetrics, 2000); // Check every 2 seconds
+        });
+}
+
+// Function to update virtual room
+function updateVirtualRoom(room) {
+    fetch('/admin/set-virtual-room', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ room: room })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Show success message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>Virtual room set to ${room}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+            
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        } else {
+            // Show error message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>Error setting virtual room: ${data.message}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Show error message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <strong>Error setting virtual room</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        document.querySelector('.container').insertBefore(alertDiv, document.querySelector('.row'));
+    });
 }
 
 // Function to check for new logs
@@ -269,33 +556,16 @@ function checkNewLogs() {
         .then(data => {
             if (data.status === 'success') {
                 if (data.logs.length > 0) {
-                    const tbody = document.getElementById('logsTableBody');
-                    if (!tbody) return;
-
                     // Update lastLogId
                     lastLogId = data.last_id;
 
-                    // Add new logs
+                    // Add new logs to the Map
                     data.logs.forEach(log => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${log.id || ''}</td>
-                            <td>${log.nfc_id || ''}</td>
-                            <td>${log.item_name || 'Unknown'}</td>
-                            <td>${log.from_location || 'N/A'}</td>
-                            <td>${log.action || ''}</td>
-                            <td>${log.timestamp || ''}</td>
-                        `;
-                        tbody.insertBefore(row, tbody.firstChild);
+                        allLogs.set(log.id, log);
                     });
 
-                    // Remove excess rows
-                    while (tbody.children.length > 20) {
-                        tbody.removeChild(tbody.lastChild);
-                    }
-
-                    // Update room counts
-                    updateRoomCounts();
+                    // Update the table
+                    updateLogsTable();
                 }
             } else {
                 console.error('Error fetching logs:', data.message);
@@ -308,15 +578,72 @@ function checkNewLogs() {
         });
 }
 
-// Start polling
-checkNewLogs();
+// Function to export filtered logs
+function exportFilteredLogs() {
+    const filters = {
+        dateFrom: document.getElementById('dateFromFilter').value,
+        dateTo: document.getElementById('dateToFilter').value,
+        timeFrom: document.getElementById('timeFromFilter').value,
+        timeTo: document.getElementById('timeToFilter').value,
+        room: document.getElementById('roomFilter').value,
+        asset: document.getElementById('assetFilter').value,
+        movementType: document.getElementById('movementTypeFilter').value
+    };
 
-// Update room counts every 5 seconds as a fallback
-setInterval(updateRoomCounts, 5000);
+    // Convert filters to URL parameters
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+        if (value) {
+            params.append(key, value);
+        }
+    }
+
+    // Redirect to export endpoint with filters
+    window.location.href = `/admin/export-filtered-logs?${params.toString()}`;
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Set initial virtual room
+    updateVirtualRoom(document.getElementById('roomSelect').value);
+
+    // Get initial metrics
+    fetch('/admin/get-metrics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                updateMetrics(data.metrics);
+            }
+        })
+        .catch(error => console.error('Error initializing metrics:', error));
+
+    // Get initial logs from the server
+    fetch('/admin/get-recent-logs')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success' && data.logs.length > 0) {
+                // Add new logs to the Map
+                data.logs.forEach(log => {
+                    allLogs.set(log.id, log);
+                    if (log.id > lastLogId) {
+                        lastLogId = log.id;
+                    }
+                });
+
+                // Update the table
+                updateLogsTable();
+            }
+        })
+        .catch(error => console.error('Error initializing logs:', error));
+
+    // Start polling for both logs and metrics
+    checkNewLogs();
+    checkNewMetrics();
+});
 
 // Clean up on page unload
 window.addEventListener('beforeunload', function() {
     isPolling = false;
 });
 </script>
-{% endblock %}
+{% endblock content %}
