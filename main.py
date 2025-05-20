@@ -12,9 +12,12 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
 import json
+import pytz
 
-
-
+# Function to get current Philippine time
+def get_ph_time():
+    ph_tz = pytz.timezone('Asia/Manila')
+    return datetime.now(ph_tz)
 
 nfc_buffer = {"value": ""}
 nfc_process = None
@@ -127,7 +130,7 @@ def admin_dashboard():
     second_floor_count = Item.query.filter(Item.location.like('CTH2%')).count()
 
     # Get items moved today
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = get_ph_time().strftime("%Y-%m-%d")
     items_moved_today = db.session.query(
         MovementLog.nfc_id,
         MovementLog.from_location,
@@ -137,7 +140,7 @@ def admin_dashboard():
     ).distinct().count()
 
     # Get items pending for more than 1 minute and create notifications
-    now = datetime.now()
+    now = get_ph_time()
     pending_items = Item.query.filter_by(location="Pending").all()
     long_pending_count = 0
     notifications = []
@@ -218,7 +221,7 @@ def adminGetAllItem():
         pending_items = Item.query.filter_by(location="Pending").all()
 
     notifications = []
-    now = datetime.now()
+    now = get_ph_time()
     for item in pending_items:
         try:
             created = datetime.strptime(item.create_date, "%Y-%m-%dT%H:%M")
@@ -244,10 +247,10 @@ def export_daily_logs():
         return redirect('/admin/')
 
     # Get today's date
-    today_date = datetime.now().strftime("%Y-%m-%d")
+    today_date = get_ph_time().strftime("%Y-%m-%d")
     # Fetch movement logs for today (filter logs by today's date)
-    start_of_day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    end_of_day = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
+    start_of_day = get_ph_time().replace(hour=0, minute=0, second=0, microsecond=0)
+    end_of_day = get_ph_time().replace(hour=23, minute=59, second=59, microsecond=999999)
     
     logs = (
     db.session.query(MovementLog, Item.name)
@@ -489,14 +492,14 @@ def move_in():
         if item:
             from_location = item.location
             item.location = new_location
-            item.create_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            item.create_date = get_ph_time().strftime("%Y-%m-%d %H:%M:%S")
             db.session.commit()
 
             # Log movement
             log = MovementLog(
                 nfc_id=scanned_nfc,
                 action=f"Moved to {new_location}",
-                timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                timestamp=get_ph_time().strftime("%Y-%m-%d %H:%M:%S"),
                 from_location=from_location
             )
             db.session.add(log)
@@ -530,14 +533,14 @@ def out_item():
         
         # Move to Pending
         item.location = "Pending"
-        item.create_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        item.create_date = get_ph_time().strftime("%Y-%m-%d %H:%M:%S")
         db.session.commit()
 
         # Log the movement
         log = MovementLog(
             nfc_id=nfc_id,
             action="Marked as Pending",
-            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            timestamp=get_ph_time().strftime("%Y-%m-%d %H:%M:%S"),
             from_location=from_location
         )
         db.session.add(log)
@@ -613,7 +616,7 @@ def auto_scan():
     try:
         # Get the most recent movement log for this item
         last_log = MovementLog.query.filter_by(nfc_id=nfc_id).order_by(MovementLog.id.desc()).first()
-        current_time = datetime.now()
+        current_time = get_ph_time()
         
         # If there's a recent log within the last 10 seconds, ignore this scan
         if last_log and (current_time - datetime.strptime(last_log.timestamp, "%Y-%m-%d %H:%M:%S")) < timedelta(seconds=5):
@@ -770,7 +773,7 @@ def get_metrics():
         second_floor_count = Item.query.filter(Item.location.like('CTH2%')).count()
 
         # Get items moved today
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = get_ph_time().strftime("%Y-%m-%d")
         items_moved_today = db.session.query(
             MovementLog.nfc_id,
             MovementLog.from_location,
@@ -780,7 +783,7 @@ def get_metrics():
         ).distinct().count()
 
         # Get items pending for more than 1 minute and create notifications
-        now = datetime.now()
+        now = get_ph_time()
         pending_items = Item.query.filter_by(location="Pending").all()
         long_pending_count = 0
         notifications = []
@@ -849,7 +852,7 @@ def export_filtered_logs():
             elif date_to:
                 base_date = date_to
             else:
-                base_date = datetime.now().strftime("%Y-%m-%d")
+                base_date = get_ph_time().strftime("%Y-%m-%d")
             
             if time_from:
                 # For time_from, we want to include the exact minute
