@@ -19,6 +19,18 @@ def get_ph_time():
     ph_tz = pytz.timezone('Asia/Manila')
     return datetime.now(ph_tz)
 
+def parse_ph_time(dt_str):
+    ph_tz = pytz.timezone('Asia/Manila')
+    for fmt in ("%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S"):
+        try:
+            dt = datetime.strptime(dt_str, fmt)
+            if dt.tzinfo is None:
+                dt = ph_tz.localize(dt)
+            return dt
+        except ValueError:
+            continue
+    raise ValueError("Unknown datetime format: " + dt_str)
+
 nfc_buffer = {"value": ""}
 nfc_process = None
 
@@ -146,9 +158,9 @@ def admin_dashboard():
     notifications = []
     for item in pending_items:
         try:
-            created = datetime.strptime(item.create_date, "%Y-%m-%dT%H:%M")
+            created = parse_ph_time(item.create_date)
         except ValueError:
-            created = datetime.strptime(item.create_date, "%Y-%m-%d %H:%M:%S")
+            created = parse_ph_time(item.create_date)
         if now - created > timedelta(minutes=1):
             long_pending_count += 1
             notifications.append(f"{item.name} (NFC ID: {item.nfc_id}) has been in pending for over 1 minute.")
@@ -224,9 +236,9 @@ def adminGetAllItem():
     now = get_ph_time()
     for item in pending_items:
         try:
-            created = datetime.strptime(item.create_date, "%Y-%m-%dT%H:%M")
+            created = parse_ph_time(item.create_date)
         except ValueError:
-            created = datetime.strptime(item.create_date, "%Y-%m-%d %H:%M:%S")
+            created = parse_ph_time(item.create_date)
         if now - created > timedelta(minutes=1):
             notifications.append(f"{item.name} (NFC ID: {item.nfc_id}) has been in pending for over 1 minute.")
 
@@ -619,7 +631,7 @@ def auto_scan():
         current_time = get_ph_time()
         
         # If there's a recent log within the last 10 seconds, ignore this scan
-        if last_log and (current_time - datetime.strptime(last_log.timestamp, "%Y-%m-%d %H:%M:%S")) < timedelta(seconds=5):
+        if last_log and (current_time - parse_ph_time(last_log.timestamp)) < timedelta(seconds=5):
             return jsonify({
                 "status": "error",
                 "message": "Please wait a few seconds between scans"
@@ -789,9 +801,9 @@ def get_metrics():
         notifications = []
         for item in pending_items:
             try:
-                created = datetime.strptime(item.create_date, "%Y-%m-%dT%H:%M")
+                created = parse_ph_time(item.create_date)
             except ValueError:
-                created = datetime.strptime(item.create_date, "%Y-%m-%d %H:%M:%S")
+                created = parse_ph_time(item.create_date)
             if now - created > timedelta(minutes=1):
                 long_pending_count += 1
                 notifications.append(f"{item.name} (NFC ID: {item.nfc_id}) has been in pending for over 1 minute.")
@@ -1005,7 +1017,7 @@ def export_filtered_logs():
         pdf.setFont("Helvetica", 9)
         for log, asset_name in logs:
             # Convert timestamp to 12-hour format with date
-            timestamp = datetime.strptime(log.timestamp, "%Y-%m-%d %H:%M:%S")
+            timestamp = parse_ph_time(log.timestamp)
             formatted_datetime = timestamp.strftime("%b %d, %Y %I:%M %p")
 
             # Check if we need a new page
