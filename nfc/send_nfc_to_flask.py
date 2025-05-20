@@ -4,7 +4,7 @@ import time
 
 
 
-RAILWAY_URL = "https://web-production-fd58.up.railway.app"
+RAILWAY_URL = "https://nfc-based-asset-tracking-system.up.railway.app"
 
 def main(): 
     r = readers()
