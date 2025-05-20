@@ -26,6 +26,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config["SECRET_KEY"] = '65b0b774279de460f1cc5c92'
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = 'filesystem'
+app.config['VIRTUAL_ROOM'] = 'CTH101'  # Default virtual room
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
@@ -117,74 +118,65 @@ def admin_dashboard():
     if not session.get('admin_id'):
         return redirect('/admin/')
 
-    # Get counts for total items, CTH101, CTh102, and pending items
+    # Get total items count
     totalItems = Item.query.count()
-    cth101Count = Item.query.filter_by(location="CTH101").count()
-    cth102Count = Item.query.filter_by(location="CTH102").count()
-    cth103Count = Item.query.filter_by(location="CTH103").count()
-    cth104Count = Item.query.filter_by(location="CTH104").count()
-    cth105Count = Item.query.filter_by(location="CTH105").count()
-    cth106Count = Item.query.filter_by(location="CTH106").count()
-    cth110Count = Item.query.filter_by(location="CTH110").count()
-    cth111Count = Item.query.filter_by(location="CTH111").count()
-    cth112Count = Item.query.filter_by(location="CTH112").count()
-    cth113Count = Item.query.filter_by(location="CTH113").count()
-    cth201Count = Item.query.filter_by(location="CTH201").count()
-    cth202Count = Item.query.filter_by(location="CTH202").count()
-    cth203Count = Item.query.filter_by(location="CTH203").count()
-    cth204Count = Item.query.filter_by(location="CTH204").count()
-    cth205Count = Item.query.filter_by(location="CTH205").count()
-    cth206Count = Item.query.filter_by(location="CTH206").count()
-    cth207Count = Item.query.filter_by(location="CTH207").count()
-    cth208Count = Item.query.filter_by(location="CTH208").count()
-    cth209Count = Item.query.filter_by(location="CTH209").count()
-    cth210Count = Item.query.filter_by(location="CTH210").count()
-    cth211Count = Item.query.filter_by(location="CTH211").count()
-    cth212Count = Item.query.filter_by(location="CTH212").count()
-    cth213Count = Item.query.filter_by(location="CTH213").count()
-    cth214Count = Item.query.filter_by(location="CTH214").count()
     pendingCount = Item.query.filter_by(location="Pending").count()
 
-    # Fetch recent movement logs
+    # Get counts by floor
+    first_floor_count = Item.query.filter(Item.location.like('CTH1%')).count()
+    second_floor_count = Item.query.filter(Item.location.like('CTH2%')).count()
 
+    # Get items moved today
+    today = datetime.now().strftime("%Y-%m-%d")
+    items_moved_today = db.session.query(
+        MovementLog.nfc_id,
+        MovementLog.from_location,
+        MovementLog.action
+    ).filter(
+        MovementLog.timestamp.like(f"{today}%")
+    ).distinct().count()
+
+    # Get items pending for more than 1 minute and create notifications
+    now = datetime.now()
+    pending_items = Item.query.filter_by(location="Pending").all()
+    long_pending_count = 0
+    notifications = []
+    for item in pending_items:
+        try:
+            created = datetime.strptime(item.create_date, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            created = datetime.strptime(item.create_date, "%Y-%m-%d %H:%M:%S")
+        if now - created > timedelta(minutes=1):
+            long_pending_count += 1
+            notifications.append(f"{item.name} (NFC ID: {item.nfc_id}) has been in pending for over 1 minute.")
+
+    # Get individual room counts
+    room_counts = {}
+    rooms = [f"CTH{floor}{room:02d}" for floor in (1, 2) for room in range(1, 15) if not (floor == 1 and 7 <= room <= 9)]
+    for room in rooms:
+        room_counts[room] = Item.query.filter_by(location=room).count()
+
+    # Fetch recent movement logs
     logs = (
-    db.session.query(MovementLog, Item.name)
-    .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
-    .order_by(MovementLog.timestamp.desc())
-    .limit(20)
-    .all()
-)
+        db.session.query(MovementLog, Item.name)
+        .outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
+        .order_by(MovementLog.timestamp.desc())
+        .limit(20)
+        .all()
+    )
 
     return render_template(
         'admin/dashboard.html',
         title='Admin Dashboard',
         totalItems=totalItems,
-        cth101Count=cth101Count,
-        cth102Count=cth102Count,
-        cth103Count=cth103Count,
-        cth104Count=cth104Count,
-        cth105Count=cth105Count,
-        cth106Count=cth106Count,
-        cth110Count=cth110Count,
-        cth111Count=cth111Count,
-        cth112Count=cth112Count,
-        cth113Count=cth113Count,
-        cth201Count=cth201Count,
-        cth202Count=cth202Count,
-        cth203Count=cth203Count,
-        cth204Count=cth204Count,
-        cth205Count=cth205Count,
-        cth206Count=cth206Count,
-        cth207Count=cth207Count,
-        cth208Count=cth208Count,
-        cth209Count=cth209Count,
-        cth210Count=cth210Count,
-        cth211Count=cth211Count,
-        cth212Count=cth212Count,
-        cth213Count=cth213Count,
-        cth214Count=cth214Count,
         pendingCount=pendingCount,
-        logs=logs
+        first_floor_count=first_floor_count,
+        second_floor_count=second_floor_count,
+        items_moved_today=items_moved_today,
+        long_pending_count=long_pending_count,
+        room_counts=room_counts,
+        logs=logs,
+        notifications=notifications
     )
 
 @app.route('/admin/get-all-item', methods=["POST", "GET"])
@@ -574,6 +566,20 @@ def adminLogout():
     session.pop('admin_name', None)
     return redirect('/')
 
+@app.route('/admin/set-virtual-room', methods=['POST'])
+def set_virtual_room():
+    if not session.get('admin_id'):
+        return redirect('/admin/')
+    
+    data = request.get_json()
+    room = data.get('room')
+    
+    if not room:
+        return jsonify({"status": "error", "message": "No room provided"})
+    
+    app.config['VIRTUAL_ROOM'] = room
+    return jsonify({"status": "success", "message": f"Virtual room set to {room}"})
+
 @app.route('/admin/auto-scan', methods=["POST"])
 def auto_scan():
     # Create a temporary admin session if none exists
@@ -610,7 +616,7 @@ def auto_scan():
         current_time = datetime.now()
         
         # If there's a recent log within the last 10 seconds, ignore this scan
-        if last_log and (current_time - datetime.strptime(last_log.timestamp, "%Y-%m-%d %H:%M:%S")) < timedelta(seconds=10):
+        if last_log and (current_time - datetime.strptime(last_log.timestamp, "%Y-%m-%d %H:%M:%S")) < timedelta(seconds=5):
             return jsonify({
                 "status": "error",
                 "message": "Please wait a few seconds between scans"
@@ -618,23 +624,17 @@ def auto_scan():
             
         # Check if the item is currently in Pending state
         if item.location == "Pending":
-            # Find the last known location before it was marked as Pending
-            previous_location = None
-            if last_log and last_log.from_location and last_log.from_location != "Pending":
-                previous_location = last_log.from_location
+            # Get the virtual room from config
+            virtual_room = app.config['VIRTUAL_ROOM']
             
-            if not previous_location:
-                # If no previous location found, default to CTH101
-                previous_location = "CTH101"
-
-            # Move item back to its previous location
-            item.location = previous_location
+            # Move item to the virtual room
+            item.location = virtual_room
             item.create_date = current_time.strftime("%Y-%m-%d %H:%M:%S")
             
-            # Log the return
+            # Log the movement
             log = MovementLog(
                 nfc_id=nfc_id,
-                action=f"Returned to {previous_location}",
+                action=f"Moved to {virtual_room}",
                 timestamp=current_time.strftime("%Y-%m-%d %H:%M:%S"),
                 from_location="Pending"
             )
@@ -643,7 +643,7 @@ def auto_scan():
             
             return jsonify({
                 "status": "success", 
-                "message": f"Item {item.name} returned to {previous_location}",
+                "message": f"Item {item.name} moved to {virtual_room}",
                 "action": "IN"
             })
         else:
@@ -712,7 +712,7 @@ def logs_stream():
                 yield f"data: {json.dumps({'error': str(e)})}\n\n"
                 db.session.rollback()
             
-            time.sleep(1)  # Check for new logs every second
+            time.sleep(2)  # Check for new logs every 2 seconds
     
     return Response(generate(), mimetype='text/event-stream')
 
@@ -754,6 +754,330 @@ def get_recent_logs():
             'status': 'error',
             'message': str(e)
         })
+
+@app.route('/admin/get-metrics')
+def get_metrics():
+    if not session.get('admin_id'):
+        return jsonify({"status": "error", "message": "Not authenticated"})
+
+    try:
+        # Get total items count
+        totalItems = Item.query.count()
+        pendingCount = Item.query.filter_by(location="Pending").count()
+
+        # Get counts by floor
+        first_floor_count = Item.query.filter(Item.location.like('CTH1%')).count()
+        second_floor_count = Item.query.filter(Item.location.like('CTH2%')).count()
+
+        # Get items moved today
+        today = datetime.now().strftime("%Y-%m-%d")
+        items_moved_today = db.session.query(
+            MovementLog.nfc_id,
+            MovementLog.from_location,
+            MovementLog.action
+        ).filter(
+            MovementLog.timestamp.like(f"{today}%")
+        ).distinct().count()
+
+        # Get items pending for more than 1 minute and create notifications
+        now = datetime.now()
+        pending_items = Item.query.filter_by(location="Pending").all()
+        long_pending_count = 0
+        notifications = []
+        for item in pending_items:
+            try:
+                created = datetime.strptime(item.create_date, "%Y-%m-%dT%H:%M")
+            except ValueError:
+                created = datetime.strptime(item.create_date, "%Y-%m-%d %H:%M:%S")
+            if now - created > timedelta(minutes=1):
+                long_pending_count += 1
+                notifications.append(f"{item.name} (NFC ID: {item.nfc_id}) has been in pending for over 1 minute.")
+
+        # Get individual room counts
+        room_counts = {}
+        rooms = [f"CTH{floor}{room:02d}" for floor in (1, 2) for room in range(1, 15) if not (floor == 1 and 7 <= room <= 9)]
+        for room in rooms:
+            room_counts[room] = Item.query.filter_by(location=room).count()
+
+        return jsonify({
+            "status": "success",
+            "metrics": {
+                "totalItems": totalItems,
+                "pendingCount": pendingCount,
+                "first_floor_count": first_floor_count,
+                "second_floor_count": second_floor_count,
+                "items_moved_today": items_moved_today,
+                "long_pending_count": long_pending_count,
+                "room_counts": room_counts,
+                "notifications": notifications
+            }
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/admin/export-filtered-logs', methods=["GET"])
+def export_filtered_logs():
+    if not session.get('admin_id'):
+        return redirect('/admin/')
+
+    try:
+        # Get filter parameters
+        date_from = request.args.get('dateFrom')
+        date_to = request.args.get('dateTo')
+        time_from = request.args.get('timeFrom')
+        time_to = request.args.get('timeTo')
+        room_filter = request.args.get('room')
+        asset_filter = request.args.get('asset')
+        movement_type = request.args.get('movementType')
+
+        # Build the query
+        query = db.session.query(MovementLog, Item.name).outerjoin(Item, MovementLog.nfc_id == Item.nfc_id)
+
+        # Apply date range filter
+        if date_from:
+            from_datetime = f"{date_from} 00:00:00"
+            query = query.filter(MovementLog.timestamp >= from_datetime)
+        
+        if date_to:
+            to_datetime = f"{date_to} 23:59:59"
+            query = query.filter(MovementLog.timestamp <= to_datetime)
+        
+        # Apply time range filter
+        if time_from or time_to:
+            if date_from:
+                base_date = date_from
+            elif date_to:
+                base_date = date_to
+            else:
+                base_date = datetime.now().strftime("%Y-%m-%d")
+            
+            if time_from:
+                # For time_from, we want to include the exact minute
+                from_datetime = f"{base_date} {time_from}:00"
+                query = query.filter(MovementLog.timestamp >= from_datetime)
+            
+            if time_to:
+                # For time_to, we want to include the entire minute
+                to_datetime = f"{base_date} {time_to}:59"
+                query = query.filter(MovementLog.timestamp <= to_datetime)
+        
+        if room_filter:
+            query = query.filter(or_(
+                MovementLog.action.like(f"%{room_filter}%"),
+                MovementLog.from_location.like(f"%{room_filter}%")
+            ))
+        
+        if asset_filter:
+            query = query.filter(Item.name.ilike(f"%{asset_filter}%"))
+
+        # Apply movement type filter
+        if movement_type:
+            if movement_type == "scanned_out":
+                query = query.filter(MovementLog.action == "Marked as Pending")
+            elif movement_type == "scanned_in":
+                query = query.filter(MovementLog.action.like("Moved to CTH%"))
+
+        # Get filtered logs
+        logs = query.order_by(MovementLog.timestamp.desc()).all()
+
+        # Create a PDF in memory using BytesIO
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=letter)
+        width, height = letter
+
+        # Title
+        pdf.setFont("Helvetica-Bold", 14)
+        title = "Filtered Movement Logs"
+        
+        # Split title into multiple lines if too long
+        title_lines = []
+        current_line = ""
+        words = title.split()
+        for word in words:
+            if pdf.stringWidth(current_line + " " + word, "Helvetica-Bold", 14) < width - 100:
+                current_line += " " + word if current_line else word
+            else:
+                title_lines.append(current_line)
+                current_line = word
+        if current_line:
+            title_lines.append(current_line)
+
+        # Draw title lines
+        y_position = height - 50
+        for line in title_lines:
+            pdf.drawString(50, y_position, line)
+            y_position -= 20
+
+        # Add Filters Applied section
+        y_position -= 10  # Add some space after title
+        pdf.setFont("Helvetica-Bold", 10)
+        pdf.drawString(50, y_position, "Filters Applied:")
+        y_position -= 20
+
+        # Draw active filters
+        pdf.setFont("Helvetica", 9)
+        active_filters = []
+        
+        if date_from or date_to:
+            date_range = f"Date Range: {date_from or 'beginning'} to {date_to or 'end'}"
+            active_filters.append(date_range)
+        
+        if time_from or time_to:
+            time_range = f"Time Range: {time_from or 'beginning'} to {time_to or 'end'}"
+            active_filters.append(time_range)
+        
+        if room_filter:
+            active_filters.append(f"Room: {room_filter}")
+        
+        if asset_filter:
+            active_filters.append(f"Asset: {asset_filter}")
+
+        if movement_type:
+            if movement_type == "scanned_out":
+                active_filters.append("Movement Type: Scanned Out (Pending)")
+            elif movement_type == "scanned_in":
+                active_filters.append("Movement Type: Scanned In")
+
+        # If no filters are active, show "None"
+        if not active_filters:
+            active_filters.append("No filters applied")
+
+        # Draw each filter
+        for filter_text in active_filters:
+            # Check if we need a new page
+            if y_position < 100:  # Leave more space for the table
+                pdf.showPage()
+                pdf.setFont("Helvetica", 9)
+                y_position = height - 50
+                pdf.setFont("Helvetica-Bold", 10)
+                pdf.drawString(50, y_position, "Filters Applied:")
+                y_position -= 20
+                pdf.setFont("Helvetica", 9)
+
+            # Wrap long filter text
+            words = filter_text.split()
+            line = ""
+            for word in words:
+                if pdf.stringWidth(line + " " + word, "Helvetica", 9) < width - 100:
+                    line += " " + word if line else word
+                else:
+                    pdf.drawString(70, y_position, line)
+                    y_position -= 15
+                    line = word
+            if line:
+                pdf.drawString(70, y_position, line)
+                y_position -= 15
+
+        # Add some space before the table
+        y_position -= 20
+
+        # Column widths and positions
+        col_widths = {
+            'nfc_id': 80,
+            'asset': 100,
+            'from': 80,
+            'action': 100,
+            'datetime': 100
+        }
+        col_positions = {
+            'nfc_id': 50,
+            'asset': 50 + col_widths['nfc_id'],
+            'from': 50 + col_widths['nfc_id'] + col_widths['asset'],
+            'action': 50 + col_widths['nfc_id'] + col_widths['asset'] + col_widths['from'],
+            'datetime': 50 + col_widths['nfc_id'] + col_widths['asset'] + col_widths['from'] + col_widths['action']
+        }
+
+        # Column Headers
+        pdf.setFont("Helvetica-Bold", 9)
+        pdf.drawString(col_positions['nfc_id'], y_position, "NFC ID")
+        pdf.drawString(col_positions['asset'], y_position, "Asset")
+        pdf.drawString(col_positions['from'], y_position, "From")
+        pdf.drawString(col_positions['action'], y_position, "Action")
+        pdf.drawString(col_positions['datetime'], y_position, "Date & Time")
+
+        # Adjust y-position after header
+        y_position -= 20
+
+        # Log entries
+        pdf.setFont("Helvetica", 9)
+        for log, asset_name in logs:
+            # Convert timestamp to 12-hour format with date
+            timestamp = datetime.strptime(log.timestamp, "%Y-%m-%d %H:%M:%S")
+            formatted_datetime = timestamp.strftime("%b %d, %Y %I:%M %p")
+
+            # Check if we need a new page
+            if y_position < 50:
+                pdf.showPage()
+                pdf.setFont("Helvetica", 9)
+                y_position = height - 50
+                # Redraw headers on new page
+                pdf.setFont("Helvetica-Bold", 9)
+                pdf.drawString(col_positions['nfc_id'], y_position, "NFC ID")
+                pdf.drawString(col_positions['asset'], y_position, "Asset")
+                pdf.drawString(col_positions['from'], y_position, "From")
+                pdf.drawString(col_positions['action'], y_position, "Action")
+                pdf.drawString(col_positions['datetime'], y_position, "Date & Time")
+                y_position -= 20
+                pdf.setFont("Helvetica", 9)
+
+            # Draw log entry with text wrapping
+            def draw_wrapped_text(text, x, y, width):
+                words = text.split()
+                line = ""
+                lines = []
+                for word in words:
+                    if pdf.stringWidth(line + " " + word, "Helvetica", 9) < width:
+                        line += " " + word if line else word
+                    else:
+                        lines.append(line)
+                        line = word
+                if line:
+                    lines.append(line)
+                
+                for i, line in enumerate(lines):
+                    pdf.drawString(x, y - (i * 12), line)
+                return len(lines)
+
+            # Draw each column with wrapping
+            nfc_lines = draw_wrapped_text(log.nfc_id, col_positions['nfc_id'], y_position, col_widths['nfc_id'])
+            asset_lines = draw_wrapped_text(asset_name or "Unknown", col_positions['asset'], y_position, col_widths['asset'])
+            from_lines = draw_wrapped_text(log.from_location or "N/A", col_positions['from'], y_position, col_widths['from'])
+            action_lines = draw_wrapped_text(log.action, col_positions['action'], y_position, col_widths['action'])
+            datetime_lines = draw_wrapped_text(formatted_datetime, col_positions['datetime'], y_position, col_widths['datetime'])
+
+            # Move to next row based on the maximum number of lines
+            max_lines = max(nfc_lines, asset_lines, from_lines, action_lines, datetime_lines)
+            y_position -= (max_lines * 12) + 5  # Add some padding between rows
+
+        # Finalize PDF
+        pdf.save()
+
+        # Go back to the beginning of the BytesIO buffer
+        buffer.seek(0)
+
+        # Generate filename based on filters
+        filename = "movement_logs"
+        if date_from or date_to:
+            filename += f"_{date_from or 'start'}-{date_to or 'end'}"
+        if time_from or time_to:
+            filename += f"_{time_from or 'start'}-{time_to or 'end'}"
+        if room_filter:
+            filename += f"_{room_filter}"
+        if asset_filter:
+            filename += f"_{asset_filter}"
+        if movement_type:
+            if movement_type == "scanned_out":
+                filename += "_scanned_out"
+            elif movement_type == "scanned_in":
+                filename += "_scanned_in"
+        filename += ".pdf"
+
+        # Return the PDF as a response
+        return send_file(buffer, as_attachment=True, download_name=filename, mimetype="application/pdf")
+
+    except Exception as e:
+        flash(f"Error exporting logs: {str(e)}", "error")
+        return redirect('/admin/dashboard')
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
